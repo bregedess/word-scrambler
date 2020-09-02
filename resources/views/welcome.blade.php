@@ -100,13 +100,14 @@
                     guess the word!
                 </div>
 
+                @if(\App\Word::first())
                 <div class="sub-title m-b-mm">
                     @php
-                        $id = \App\Word::first()->id;
+                        $id = \App\Word::first()->id ?? 0;
                     @endphp
 
                     @php
-                        $lastId = \App\Word::get()->last()->id;
+                        $lastId = \App\Word::get()->last()->id ?? 0;
                     @endphp
 
                     {{ \App\Word::find(rand($id, $lastId))->scrambler }}
@@ -131,6 +132,7 @@
                         </div>
                     </div>
                 </form>
+                @endif
             </div>
         </div>
 
