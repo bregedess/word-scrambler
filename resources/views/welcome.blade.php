@@ -3,8 +3,10 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- CSRF Token -->
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>Laravel</title>
+        <title>Word Scrambler</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
@@ -48,6 +50,10 @@
                 font-size: 84px;
             }
 
+            .sub-title {
+                font-size: 42px;
+            }
+
             .links > a {
                 color: #636b6f;
                 padding: 0 25px;
@@ -61,7 +67,13 @@
             .m-b-md {
                 margin-bottom: 30px;
             }
+
+            .m-b-sm {
+                margin-bottom: 20px;
+            }
         </style>
+
+        <script src="{{mix('js/app.js')}}"></script>
     </head>
     <body>
         <div class="flex-center position-ref full-height">
@@ -81,20 +93,77 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Laravel
+                    Word Scrambler
                 </div>
 
-                <div class="links">
-                    <a href="https://laravel.com/docs">Docs</a>
-                    <a href="https://laracasts.com">Laracasts</a>
-                    <a href="https://laravel-news.com">News</a>
-                    <a href="https://blog.laravel.com">Blog</a>
-                    <a href="https://nova.laravel.com">Nova</a>
-                    <a href="https://forge.laravel.com">Forge</a>
-                    <a href="https://vapor.laravel.com">Vapor</a>
-                    <a href="https://github.com/laravel/laravel">GitHub</a>
+                <div class="sub-title m-b-sm">
+                    guess the word!
                 </div>
+
+                <div class="sub-title m-b-mm">
+                    @php
+                        $id = \App\Word::first()->id;
+                    @endphp
+
+                    @php
+                        $lastId = \App\Word::get()->last()->id;
+                    @endphp
+
+                    {{ \App\Word::find(rand($id, $lastId))->scrambler }}
+                </div>
+
+                <form id="guessForm">
+                    @csrf
+                    <div class="form-group row">
+
+                        <div class="col-md-6">
+                            <input id="id" name="id" type="text" class="form-control" value="{{$id}}" hidden>
+                            <input id="value" type="text" class="form-control" name="value" required autofocus>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row mb-0">
+                        <div class="col-md-8 offset-md-4">
+                            <button type="submit" class="btn btn-primary guess">
+                                {{ __('Guess!') }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
+
+        <script>
+
+            $(".guess").click(function(event){
+                event.preventDefault();
+
+                let id = $("input[name=id]").val();
+                let value = $("input[name=value]").val();
+                let _token   = $('meta[name="csrf-token"]').attr('content');
+
+                console.log(id)
+
+                $.ajax({
+                    url: "/guess",
+                    type:"POST",
+                    data:{
+                        id:id,
+                        value:value,
+                        _token: _token
+                    },
+
+                    success:function(response){
+                        console.log('abc');
+                            if(response) {
+                                $('.success').text(response.success);
+                                $("#guessForm")[0].reset();
+                            }
+                    },
+                });
+            });
+        </script>
+
     </body>
 </html>

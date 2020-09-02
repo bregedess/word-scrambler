@@ -14,4 +14,8 @@ class Word extends Model
     {
         return '/api/v1/words/' . $this->id;
     }
+
+    public function getScramblerAttribute() {
+        return str_shuffle($this->attributes['value']);
+    }
 }
